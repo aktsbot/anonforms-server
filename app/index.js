@@ -8,6 +8,8 @@ dotenv.config();
 const app = express();
 
 const config = require('./config');
+const db = require('./db');
+const routes = require('./routes');
 
 app.use(addRequestId);
 app.use(express.json({ type: ['application/json'] }));
@@ -21,11 +23,7 @@ app.use(
 );
 app.use(morgan("[:date[iso] #:id] Completed :status :res[content-length] in :response-time ms"));
 
-app.get('/ping', (req, res) => {
-  return res.json({
-    message: 'pong'
-  })
-});
+app.use(`/api/${config.version}`, routes);
 
 app.listen(config.port, (err) => {
   if (err) {
