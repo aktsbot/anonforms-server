@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
-  res.send('User router works!');
-});
+const userController = require('../controllers/user.controller');
+const userValidate = require('../validations/user.validation');
+
+
+router.post('/auth', userValidate.createUser, userController.createUser);
 
 module.exports = router;
