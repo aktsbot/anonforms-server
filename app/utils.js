@@ -30,7 +30,13 @@ const sendEmail = async ({ subject, text, to }) => {
   }
 };
 
+// https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript#1349426
+const randomCode = (length = 6) => {
+  return Math.random().toString(36).substr(2, length);
+};
+
 module.exports = {
   sha256,
   sendEmail,
+  randomCode,
 };

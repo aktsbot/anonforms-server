@@ -1,6 +1,6 @@
 const User = require("../models/user.model");
 
-const { sha256, sendEmail } = require("../utils");
+const { sha256, sendEmail, randomCode } = require("../utils");
 
 const authUser = async (req, res, next) => {
   try {
@@ -27,10 +27,17 @@ const authUser = async (req, res, next) => {
 
     user.uuid = userInSystem.uuid;
 
+    // set access code and its expiry for 1 hr
+    const nowDate = new Date();
+    userInSystem.access_code = `AC-${randomCode(6)}`;
+    userInSystem.access_code_expiry = nowDate.setHours(nowDate.getHours() + 1);
+
+    await userInSystem.save();
+
     const mailPayload = {
       subject: "Authentication code for Anonforms",
       to: req.xop.email,
-      text: "Your authentication code is: AC-1234567",
+      text: `Your authentication code is: ${userInSystem.access_code}`,
     };
     await sendEmail(mailPayload);
 
