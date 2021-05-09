@@ -1,25 +1,27 @@
-const mongoose = require('mongoose');
-const { v4: uuid4 } = require('uuid'); // uuid.v4() gives uuids
+const mongoose = require("mongoose");
+const { v4: uuid4 } = require("uuid"); // uuid.v4() gives uuids
 
-const UserSchema = new mongoose.Schema({
-  uuid: { 
-    type: String, 
-    default: uuid4 
+const UserSchema = new mongoose.Schema(
+  {
+    uuid: {
+      type: String,
+      default: uuid4,
+    },
+    email_hash: {
+      type: String,
+      required: true,
+    },
+    access_code: {
+      type: String,
+    },
+    access_code_expiry: {
+      type: Date,
+    },
   },
-  email_hash: { 
-    type: String, 
-    required: true 
-  },
-  access_code: { 
-    type: String 
-  },
-  access_code_expiry: { 
-    type: Date 
-  },
-}, {
-  timestamps: true,
-  versionKey: false
-});
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
 
-module.exports = mongoose.model('user', UserSchema);
-
+module.exports = mongoose.model("user", UserSchema);
