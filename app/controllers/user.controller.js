@@ -1,6 +1,6 @@
 const User = require("../models/user.model");
 
-const { sha256 } = require("../utils");
+const { sha256, sendEmail } = require("../utils");
 
 const authUser = async (req, res, next) => {
   try {
@@ -26,6 +26,13 @@ const authUser = async (req, res, next) => {
     }
 
     user.uuid = userInSystem.uuid;
+
+    const mailPayload = {
+      subject: "Authentication code for Anonforms",
+      to: req.xop.email,
+      text: "Your authentication code is: AC-1234567",
+    };
+    await sendEmail(mailPayload);
 
     return res.status(201).json({
       data: {
