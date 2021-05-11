@@ -5,5 +5,6 @@ const userController = require("../controllers/user.controller");
 const userValidate = require("../validations/user.validation");
 
 router.post("/auth", userValidate.authUser, userController.authUser);
+router.post("/session", userValidate.makeSession, userController.makeSession);
 
 module.exports = router;

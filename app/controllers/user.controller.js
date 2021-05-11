@@ -51,6 +51,17 @@ const authUser = async (req, res, next) => {
   }
 };
 
+const makeSession = async (req, res, next) => {
+  try {
+    return res.status(201).json({
+      data: {},
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   authUser,
+  makeSession,
 };
