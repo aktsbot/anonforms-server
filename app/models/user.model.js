@@ -11,10 +11,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    access_code: {
+    auth_code: {
       type: String,
     },
-    access_code_expiry: {
+    auth_code_expiry: {
       type: Date,
     },
   },

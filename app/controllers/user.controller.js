@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const Session = require("../models/session.model");
 
 const { sha256, sendEmail, randomCode } = require("../utils");
 
@@ -29,15 +30,15 @@ const authUser = async (req, res, next) => {
 
     // set access code and its expiry for 1 hr
     const nowDate = new Date();
-    userInSystem.access_code = `AC-${randomCode(6)}`;
-    userInSystem.access_code_expiry = nowDate.setHours(nowDate.getHours() + 1);
+    userInSystem.auth_code = `AC-${randomCode(6)}`;
+    userInSystem.auth_code_expiry = nowDate.setHours(nowDate.getHours() + 1);
 
     await userInSystem.save();
 
     const mailPayload = {
       subject: "Authentication code for Anonforms",
       to: req.xop.email,
-      text: `Your authentication code is: ${userInSystem.access_code}`,
+      text: `Your authentication code is: ${userInSystem.auth_code}`,
     };
     await sendEmail(mailPayload);
 
@@ -53,8 +54,48 @@ const authUser = async (req, res, next) => {
 
 const makeSession = async (req, res, next) => {
   try {
+    // check if the credentials match
+    const email_hash = sha256(req.xop.email);
+    const user = await User.findOne(
+      {
+        email_hash,
+        auth_code: req.xop.auth_code,
+      },
+      { auth_code_expiry: 1 }
+    );
+
+    if (!user) {
+      return next({
+        isClient: true,
+        message: `No user found for ${req.xop.email} and ${req.xop.auth_code}`,
+      });
+    }
+
+    // check for expiry
+    const now = new Date();
+    if (user.auth_code_expiry < now) {
+      return next({
+        isClient: true,
+        message: `Provided authentication code has expired.`,
+      });
+    }
+
+    // clear auth codes
+    user.auth_code = "";
+    user.auth_code_expiry = null;
+    await user.save();
+
+    // we create a session in session collection with the user
+    const newSession = new Session({
+      user: user._id,
+    });
+
+    const session = await newSession.save();
+
     return res.status(201).json({
-      data: {},
+      data: {
+        token: session.session_token,
+      },
     });
   } catch (e) {
     next(e);
