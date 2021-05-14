@@ -58,14 +58,15 @@ const checkSession = async (req, res, next) => {
       });
     }
 
-    // attach the anonform user to req, so that it can be used in
-    // later middlewares
-    req.afuser = user;
-
     // update session expiry to 3 hrs later everytime a token is used.
     session.session_token_expiry = nowDate.setHours(nowDate.getHours() + 3);
     session.session_last_used = new Date();
     await session.save();
+
+    // attach the anonform user to req, so that it can be used in
+    // later middlewares
+    req.afuser = user;
+    req.afsession = session;
 
     next();
   } catch (e) {

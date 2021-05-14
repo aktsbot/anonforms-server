@@ -47,7 +47,9 @@ token is not used for more than 3 hrs, it'll be removed.
 
 ### GET /api/v1/user [auth]
 
-This endpoint returns the user info for a session token.
+Returns the user info for a session token.
 
+### POST /api/v1/user/logout [auth]
 
+Clears the session for the user. The session token is removed from the system.
 

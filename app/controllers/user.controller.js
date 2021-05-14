@@ -118,8 +118,20 @@ const userInfo = async (req, res, next) => {
   }
 };
 
+const clearSession = async (req, res, next) => {
+  try {
+    await req.afsession.remove();
+    return res.status(200).json({
+      message: "Logout successful. Session has been cleared",
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   authUser,
   makeSession,
   userInfo,
+  clearSession,
 };
