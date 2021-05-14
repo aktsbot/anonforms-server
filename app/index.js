@@ -36,7 +36,11 @@ app.use((err, req, res, next) => {
   }
   // user errors have a err.isClient field
   if (err.isClient) {
-    return res.status(400).json({
+    let statusCode = 400;
+    if (err.is403) {
+      statusCode = 403;
+    }
+    return res.status(statusCode).json({
       message: err.message || `Bad request payload`,
     });
   } else {

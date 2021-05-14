@@ -86,8 +86,12 @@ const makeSession = async (req, res, next) => {
     await user.save();
 
     // we create a session in session collection with the user
+    // the session token expires after 3 hrs
+    const nowDate = new Date();
+    const session_token_expiry = nowDate.setHours(nowDate.getHours() + 3);
     const newSession = new Session({
       user: user._id,
+      session_token_expiry,
     });
 
     const session = await newSession.save();
@@ -102,7 +106,20 @@ const makeSession = async (req, res, next) => {
   }
 };
 
+const userInfo = async (req, res, next) => {
+  try {
+    return res.status(200).json({
+      data: {
+        user: req.afuser.uuid,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   authUser,
   makeSession,
+  userInfo,
 };
