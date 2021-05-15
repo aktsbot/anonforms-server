@@ -13,7 +13,12 @@ const __questionSchema = Joi.object({
     "radio",
     "dropdown"
   ),
-  question_options: Joi.array().items(__optionsSchema),
+  question_options: Joi.array()
+    .items(__optionsSchema)
+    .when("question_type", {
+      is: Joi.string().valid("checkbox", "radio", "dropdown"),
+      then: Joi.required(),
+    }),
   is_required: Joi.boolean(),
 });
 

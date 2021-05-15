@@ -53,3 +53,68 @@ Returns the user info for a session token.
 
 Clears the session for the user. The session token is removed from the system.
 
+### POST /api/v1/form [auth]
+
+Creates a form based on the payload provided and returns its reference.
+
+- `uri` needs to be unique. It's used to fetch back the form for usage later.
+- `question_type` can be one of simple_text, large_text, checkbox, radio, dropdown.
+- If `question_type` is one of `checkbox`, `radio` or `dropdown`, `question_options`
+is required.
+
+** Request body **
+
+```json
+{
+	"title": "SIMPLECON 2021",
+	"uri": "simple-2021",
+	"description": "Registration form for SIMPLECON 2021 happenning on Oct 16, 2021",
+	"questions": [{
+		"title": "What is your name?",
+		"question_type": "simple_text",
+		"is_required": true
+	}, {
+		"title": "From which institution are you from?",
+		"question_type": "large_text",
+		"is_required": false
+	}, {
+		"title": "Your gender",
+		"question_type": "radio",
+		"question_options": [{
+			"title": "Male"
+		}, {
+			"title": "Female"
+		}, {
+			"title": "Transgender"
+		}, {
+			"title": "Other"
+		}]
+	}, {
+		"title": "Choose if you have visited the following places",
+		"question_type": "checkbox",
+		"question_options": [{
+			"title": "Pondicherry"
+		}, {
+			"title": "Chennai"
+		}, {
+			"title": "Dindivanam"
+		}, {
+			"title": "Madurai"
+		}]
+	}, {
+		"title": "What is your nationality",
+		"question_type": "dropdown",
+		"question_options": [{
+			"title": "India"
+		}, {
+			"title": "USA"
+		}, {
+			"title": "Europe"
+		}, {
+			"title": "Japan"
+		}]
+	}]
+}
+```
+
+
