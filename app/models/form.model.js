@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
+const { v4: uuid4 } = require("uuid"); // uuid.v4() gives uuids
 
 const FormSchema = new mongoose.Schema(
   {
     uri: {
       type: String,
       unique: true,
+    },
+    uuid: {
+      type: String,
+      default: uuid4,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
