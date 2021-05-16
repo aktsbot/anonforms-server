@@ -31,6 +31,39 @@ const createForm = async (req, res, next) => {
   }
 };
 
+const getForm = async (req, res, next) => {
+  try {
+    const form = await Form.findOne(
+      {
+        $or: [{ uuid: req.params.form_uri }, { uri: req.params.form_uri }],
+      },
+      {
+        uri: 1,
+        uuid: 1,
+        user: 1,
+        title: 1,
+        description: 1,
+        questions: 1,
+        createdAt: 1,
+      }
+    );
+
+    if (!form) {
+      return next({
+        isClient: true,
+        message: "Requested form is not found",
+      });
+    }
+
+    return res.status(200).json({
+      data: form,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   createForm,
+  getForm,
 };

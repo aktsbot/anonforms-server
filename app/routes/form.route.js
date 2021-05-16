@@ -13,4 +13,6 @@ router.post(
   formController.createForm
 );
 
+router.get("/:form_uri", formController.getForm);
+
 module.exports = router;

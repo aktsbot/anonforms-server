@@ -1,15 +1,18 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const config = require('./config');
+const config = require("./config");
 
 // connecting to database
-mongoose.connect(config.mongodb_url, { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connection.on('error', () => {
-  console.log('mongodb connection error');
+mongoose.connect(config.mongodb_url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
 });
-mongoose.connection.once('open', () => {
-  console.log('mongodb connection success');
+mongoose.connection.on("error", () => {
+  console.log("mongodb connection error");
+});
+mongoose.connection.once("open", () => {
+  console.log("mongodb connection success");
 });
 
 module.exports = mongoose;
-
