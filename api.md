@@ -122,4 +122,15 @@ is required.
 Pass either a form's `uuid` or `uri` in `:form_uri` to get data about that 
 particular form.
 
+### GET /api/v1/form [auth]
+
+Returns the list of forms the user has ownership to. If no `page` number is
+sent, the first page of results is returned. Results are **30** per page.
+
+** Query string **
+
+```
+page=1
+```
+
 
