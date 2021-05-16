@@ -51,6 +51,7 @@ const getForm = async (req, res, next) => {
     if (!form) {
       return next({
         isClient: true,
+        is404: true,
         message: "Requested form is not found",
       });
     }

@@ -39,6 +39,8 @@ app.use((err, req, res, next) => {
     let statusCode = 400;
     if (err.is403) {
       statusCode = 403;
+    } else if (err.is404) {
+      statusCode = 404;
     }
     return res.status(statusCode).json({
       message: err.message || `Bad request payload`,
