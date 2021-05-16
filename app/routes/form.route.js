@@ -12,7 +12,7 @@ router.post(
   formValidate.createForm,
   formController.createForm
 );
-
+router.get("/", checkSession, formController.getUserForms);
 router.get("/:form_uri", formController.getForm);
 
 module.exports = router;

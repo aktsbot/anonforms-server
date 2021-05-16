@@ -64,7 +64,39 @@ const getForm = async (req, res, next) => {
   }
 };
 
+const getUserForms = async (req, res, next) => {
+  try {
+    // paginated list of 30 per page
+    const page = req.query.page || 1;
+    const limit = 30;
+    const skip = page * limit - limit;
+
+    const count = await Form.countDocuments({
+      user: req.afuser._id,
+    });
+
+    const forms = await Form.find(
+      {
+        user: req.afuser._id,
+      },
+      { uuid: 1, title: 1, uri: 1, _id: 0 },
+      { skip, limit }
+    );
+
+    return res.status(200).json({
+      data: {
+        forms,
+        page,
+        count,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   createForm,
   getForm,
+  getUserForms,
 };
