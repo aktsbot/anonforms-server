@@ -132,5 +132,37 @@ sent, the first page of results is returned. Results are **30** per page.
 ```
 page=1
 ```
+### POST /api/v1/response/:form_uuid
 
+Adds a response to a form mentioned by the `form_uuid`.
+
+- `response_from` needs to be unique per response for a form.
+- `question` refers to the id of a question.
+- `answer_single_option` and `answer_multiple_option` also refers to ids of the options
+that are referred in a form's question.
+- To get the ids mentioned above, make a call to the **/api/v1/form/:form_uri** endpoint.
+
+** Request payload **
+
+```json
+{
+	"response_from": "shelly@onelly.com",
+	"answers": [{
+		"question": "60a0b578a4d96c25c69d9fcc",
+		"answer_text": "Shelly O Nelly"
+	}, {
+		"question": "60a0b578a4d96c25c69d9fcd",
+		"answer_text": "Okhlahoma ... and a way we go"
+	}, {
+		"question": "60a0b578a4d96c25c69d9fce",
+		"answer_single_option": "60a0b578a4d96c25c69d9fcf"
+	}, {
+		"question": "60a0b578a4d96c25c69d9fd3",
+		"answer_multiple_option": ["60a0b578a4d96c25c69d9fd4", "60a0b578a4d96c25c69d9fd5"]
+	}, {
+		"question": "60a0b578a4d96c25c69d9fd8",
+		"answer_single_option": "60a0b578a4d96c25c69d9fd9"
+	}]
+}
+```
 
