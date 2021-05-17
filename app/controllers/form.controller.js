@@ -79,7 +79,7 @@ const getUserForms = async (req, res, next) => {
       {
         user: req.afuser._id,
       },
-      { uuid: 1, title: 1, uri: 1, _id: 0 },
+      { uuid: 1, title: 1, uri: 1, _id: 0, createdAt: 1 },
       { skip, limit }
     );
 

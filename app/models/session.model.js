@@ -5,7 +5,7 @@ const SessionSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
     },
     session_token: {
       type: String,
