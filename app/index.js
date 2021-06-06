@@ -27,6 +27,19 @@ app.use(
   )
 );
 
+// cors
+app.use(function (req, res, next) {
+  if (process.env.NODE_ENV === "development") {
+    const appDomain = process.env.APP_DOMAIN || "http://localhost:3000";
+    res.header("Access-Control-Allow-Origin", appDomain);
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept"
+    );
+  }
+  next();
+});
+
 app.use(`/api/${config.version}`, routes);
 
 // error handlers for 40x and 50x errors
