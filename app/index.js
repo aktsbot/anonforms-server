@@ -33,8 +33,12 @@ app.use(function (req, res, next) {
     const appDomain = process.env.APP_DOMAIN || "http://localhost:3000";
     res.header("Access-Control-Allow-Origin", appDomain);
     res.header(
+      "Access-Control-Allow-Methods",
+      "PUT, POST, GET, DELETE, OPTIONS"
+    );
+    res.header(
       "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept"
+      "Origin, X-Requested-With, Content-Type, Accept, x-af-auth"
     );
   }
   next();

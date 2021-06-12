@@ -61,7 +61,7 @@ const makeSession = async (req, res, next) => {
         email_hash,
         auth_code: req.xop.auth_code,
       },
-      { auth_code_expiry: 1 }
+      { auth_code_expiry: 1, uuid: 1 }
     );
 
     if (!user) {
@@ -99,6 +99,7 @@ const makeSession = async (req, res, next) => {
     return res.status(201).json({
       data: {
         token: session.session_token,
+        user: user.uuid,
       },
     });
   } catch (e) {
