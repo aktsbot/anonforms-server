@@ -11,6 +11,6 @@ router.post(
   responseValidate.createResponse,
   responseController.createResponse
 );
-router.get("/:form_uuid", checkSession, responseController.getResponses);
+router.get("/:form_uri", checkSession, responseController.getResponses);
 
 module.exports = router;
