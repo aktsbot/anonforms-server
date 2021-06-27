@@ -166,3 +166,14 @@ that are referred in a form's question.
 }
 ```
 
+### GET /api/v1/response/:form_uri
+
+Returns all responses for a form mentioned by the `form_uri`.
+If no `page` number is sent, the first page of results is returned. 
+Results are **30** per page.
+
+** Query string **
+
+```
+page=1
+```

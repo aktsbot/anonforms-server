@@ -74,6 +74,17 @@ const getResponses = async (req, res, next) => {
       });
     }
 
+    // paginated list of 30 per page
+    const page = req.query.page || 1;
+    const limit = 30;
+    const skip = page * limit - limit;
+
+    const count = await Response.count({
+      form: form._id,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
     const responses = await Response.find(
       {
         form: form._id,
@@ -84,7 +95,8 @@ const getResponses = async (req, res, next) => {
         _id: 0,
         createdAt: 1,
         answers: 1,
-      }
+      },
+      { skip, limit, sort: { createdAt: -1 } }
     );
 
     let responsesJSON = JSON.parse(JSON.stringify(responses));
@@ -112,11 +124,14 @@ const getResponses = async (req, res, next) => {
 
     return res.status(200).json({
       data: {
-        records: responsesJSON,
+        responses: responsesJSON,
         form: {
           question_count: form.questions.length,
           uuid: form.uuid,
         },
+        page,
+        count,
+        total_pages: totalPages,
       },
     });
   } catch (e) {
