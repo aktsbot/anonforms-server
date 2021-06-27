@@ -83,7 +83,7 @@ const getUserForms = async (req, res, next) => {
         user: req.afuser._id,
       },
       { uuid: 1, title: 1, uri: 1, _id: 1, createdAt: 1 },
-      { skip, limit }
+      { skip, limit, sort: { createdAt: -1 } }
     );
 
     let formsJSON = JSON.parse(JSON.stringify(forms));
@@ -91,6 +91,7 @@ const getUserForms = async (req, res, next) => {
     formsJSON = formsJSON.map((f) => {
       let newForm = { ...f };
       newForm.response_count = 0;
+      delete newForm._id;
       return newForm;
     });
     if (forms.length) {
