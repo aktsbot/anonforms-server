@@ -50,6 +50,19 @@ const createResponse = async (req, res, next) => {
   }
 };
 
+const getResponses = async (req, res, next) => {
+  try {
+    return res.status(200).json({
+      data: {
+        records: [],
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   createResponse,
+  getResponses,
 };
