@@ -76,6 +76,8 @@ const getUserForms = async (req, res, next) => {
       user: req.afuser._id,
     });
 
+    const totalPages = Math.ceil(count / limit);
+
     const forms = await Form.find(
       {
         user: req.afuser._id,
@@ -118,6 +120,7 @@ const getUserForms = async (req, res, next) => {
         forms: formsJSON,
         page,
         count,
+        total_pages: totalPages,
       },
     });
   } catch (e) {
