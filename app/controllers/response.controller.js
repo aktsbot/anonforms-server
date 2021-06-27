@@ -79,7 +79,7 @@ const getResponses = async (req, res, next) => {
     const limit = 30;
     const skip = page * limit - limit;
 
-    const count = await Response.count({
+    const count = await Response.countDocuments({
       form: form._id,
     });
 
