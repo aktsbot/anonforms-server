@@ -1,4 +1,5 @@
 const Form = require("../models/form.model");
+const Response = require("../models/response.model");
 
 const createForm = async (req, res, next) => {
   try {
@@ -79,13 +80,36 @@ const getUserForms = async (req, res, next) => {
       {
         user: req.afuser._id,
       },
-      { uuid: 1, title: 1, uri: 1, _id: 0, createdAt: 1 },
+      { uuid: 1, title: 1, uri: 1, _id: 1, createdAt: 1 },
       { skip, limit }
     );
 
+    const formsJSON = JSON.parse(JSON.stringify(forms));
+    if (forms.length) {
+      const formIds = forms.map((f) => f._id);
+      // https://stackoverflow.com/questions/40110947/how-to-use-aggregate-for-group-and-count-in-mongoose
+      const formResponseCounts = await Response.aggregate([
+        {
+          $match: { form: { $in: formIds } },
+        },
+        { $unwind: "$form" },
+        {
+          $group: {
+            _id: "$form",
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      for (const resp of formResponseCounts) {
+        const formIndex = forms.findIndex((f) => f._id.equals(resp._id));
+        formsJSON[formIndex].response_count = resp.count;
+      }
+    }
+
     return res.status(200).json({
       data: {
-        forms,
+        forms: formsJSON,
         page,
         count,
       },
