@@ -84,7 +84,13 @@ const getUserForms = async (req, res, next) => {
       { skip, limit }
     );
 
-    const formsJSON = JSON.parse(JSON.stringify(forms));
+    let formsJSON = JSON.parse(JSON.stringify(forms));
+    // set default response counts to 0
+    formsJSON = formsJSON.map((f) => {
+      let newForm = { ...f };
+      newForm.response_count = 0;
+      return newForm;
+    });
     if (forms.length) {
       const formIds = forms.map((f) => f._id);
       // https://stackoverflow.com/questions/40110947/how-to-use-aggregate-for-group-and-count-in-mongoose
