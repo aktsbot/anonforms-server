@@ -56,7 +56,7 @@ const getResponses = async (req, res, next) => {
       {
         uri: req.params.form_uri,
       },
-      { _id: 1, uuid: 1, user: 1, questions: 1 }
+      { _id: 1, uuid: 1, user: 1, questions: 1, title: 1 }
     );
 
     if (!form) {
@@ -128,6 +128,7 @@ const getResponses = async (req, res, next) => {
         form: {
           question_count: form.questions.length,
           uuid: form.uuid,
+          title: form.title,
         },
         page,
         count,
