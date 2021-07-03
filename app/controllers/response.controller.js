@@ -245,6 +245,7 @@ const generateResponseCSV = async (req, res, next) => {
       parserFields.push(field);
     }
 
+    // https://www.npmjs.com/package/json2csv#user-content-example-3
     const json2csvParser = new Parser({
       fields: parserFields,
     });
