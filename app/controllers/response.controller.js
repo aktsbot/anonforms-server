@@ -1,3 +1,4 @@
+const { Parser } = require("json2csv");
 const Response = require("../models/response.model");
 const Form = require("../models/form.model");
 
@@ -142,7 +143,114 @@ const getResponses = async (req, res, next) => {
 
 const generateResponseCSV = async (req, res, next) => {
   try {
-    return res.status(200).json({});
+    // first we need to get the form info with form_uri
+    const form = await Form.findOne(
+      {
+        uri: req.params.form_uri,
+      },
+      { _id: 1, uuid: 1, user: 1, questions: 1, title: 1 }
+    );
+
+    if (!form) {
+      return next({
+        isClient: true,
+        message: "Form not found",
+      });
+    }
+
+    if (!form.user.equals(req.afuser._id)) {
+      return next({
+        is403: true,
+        isClient: true,
+        message: "User not owner of form",
+      });
+    }
+
+    // fetch all responses
+    const responses = await Response.find(
+      {
+        form: form._id,
+      },
+      {
+        uuid: 1,
+        answers: 1,
+        response_from: 1,
+      }
+    );
+
+    // TODO: generating a csv becomes time consuming if the forms are giant
+    // and have a large number of responses
+    const csvFileName = form.title.toLowerCase().replace(/ /g, "-") + ".csv";
+    const csvFieldNames = ["Response from"]; // will be question titles, like what is your name?
+    const csvFields = ["response_from"]; // will be _ids of answers
+    const csvData = [];
+
+    for (const question of form.questions) {
+      csvFieldNames.push(question.title);
+      csvFields.push(question._id.toString());
+    }
+
+    for (const response of responses) {
+      const __csvData = {
+        response_from: response.response_from,
+      };
+      for (const csvField of csvFields) {
+        if (csvField !== "response_from") {
+          // all others are question ids
+          __csvData[csvField] = "";
+        }
+      }
+
+      for (const ans of response.answers) {
+        // simple_text and large_text require only getting value in answer_text
+        const fq = form.questions.find((q) => q._id.equals(ans.question));
+        if (
+          fq.question_type === "simple_text" ||
+          fq.question_type === "large_text"
+        ) {
+          __csvData[ans.question] = ans.answer_text;
+        } else if (
+          fq.question_type === "radio" ||
+          fq.question_type === "dropdown"
+        ) {
+          // get text from _ids
+          const options = fq.question_options;
+          const selectedOption = options.find((o) =>
+            o._id.equals(ans.answer_single_option)
+          );
+          __csvData[ans.question] = selectedOption.title;
+        } else if (fq.question_type === "checkbox") {
+          // will have multiple values
+          const options = fq.question_options;
+          const selectedOptions = [];
+          for (const amo of ans.answer_multiple_option) {
+            const selectedOption = options.find((o) => o._id.equals(amo));
+            selectedOptions.push(selectedOption.title);
+          }
+          // XXX using a comma as a delimiter in a csv file?
+          __csvData[ans.question] = selectedOptions.join(",");
+        }
+      }
+      csvData.push(__csvData);
+    }
+
+    // TODO: this could be made better
+    // [{label: 'Foo Name', value: 'name' }]
+    const parserFields = [];
+    for (let i = 0; i < csvFields.length; i++) {
+      const field = {
+        label: csvFieldNames[i],
+        value: csvFields[i],
+      };
+      parserFields.push(field);
+    }
+
+    const json2csvParser = new Parser({
+      fields: parserFields,
+    });
+    const csv = json2csvParser.parse(csvData);
+    res.attachment(csvFileName);
+    return res.status(200).send(csv);
   } catch (e) {
     next(e);
   }
