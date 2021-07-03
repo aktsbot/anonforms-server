@@ -12,5 +12,10 @@ router.post(
   responseController.createResponse
 );
 router.get("/:form_uri", checkSession, responseController.getResponses);
+router.get(
+  "/:form_uri/csv",
+  checkSession,
+  responseController.generateResponseCSV
+);
 
 module.exports = router;

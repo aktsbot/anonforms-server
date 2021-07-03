@@ -140,7 +140,16 @@ const getResponses = async (req, res, next) => {
   }
 };
 
+const generateResponseCSV = async (req, res, next) => {
+  try {
+    return res.status(200).json({});
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   createResponse,
   getResponses,
+  generateResponseCSV,
 };
