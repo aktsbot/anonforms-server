@@ -47,7 +47,8 @@ valid for 3 hrs. If the session token is not used for more than 3 hrs, it'll be 
 
 ### GET /api/v1/user [auth]
 
-Returns the user info for a session token.
+Returns the user info for a session token. It also returns a list of sessions
+that are active for the user.
 
 ### POST /api/v1/user/logout [auth]
 

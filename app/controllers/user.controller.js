@@ -145,6 +145,39 @@ const userInfo = async (req, res, next) => {
   }
 };
 
+const deleteSession = async (req, res, next) => {
+  try {
+    // remove session, only it belongs to that user
+    // and its not the current one
+    if (req.afsession.session_token === req.params.session_token) {
+      return next({
+        isClient: true,
+        message: `Cannot remove current session`,
+      });
+    }
+
+    const session = await Session.findOne(
+      { session_token: req.params.session_token, user: req.afuser._id },
+      { _id: 1 }
+    );
+
+    if (!session) {
+      return next({
+        isClient: true,
+        message: `Provided session not found for user`,
+      });
+    }
+
+    await session.remove();
+
+    return res.status(200).json({
+      message: "Session has been deleted",
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 const clearSession = async (req, res, next) => {
   try {
     await req.afsession.remove();
@@ -160,5 +193,6 @@ module.exports = {
   authUser,
   makeSession,
   userInfo,
+  deleteSession,
   clearSession,
 };

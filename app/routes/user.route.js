@@ -8,6 +8,11 @@ const userValidate = require("../validations/user.validation");
 
 router.post("/auth", userValidate.authUser, userController.authUser);
 router.post("/session", userValidate.makeSession, userController.makeSession);
+router.delete(
+  "/session/:session_token",
+  checkSession,
+  userController.deleteSession
+);
 router.get("/", checkSession, userController.userInfo);
 router.post("/logout", checkSession, userController.clearSession);
 
