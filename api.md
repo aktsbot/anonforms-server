@@ -50,6 +50,11 @@ valid for 3 hrs. If the session token is not used for more than 3 hrs, it'll be 
 Returns the user info for a session token. It also returns a list of sessions
 that are active for the user.
 
+### DELETE /api/v1/user/session/:session_token [auth]
+
+The session token is a uuid that identifies a session for a user. This endpoint
+is used to remove a user selected session which is not the current user session.
+
 ### POST /api/v1/user/logout [auth]
 
 Clears the session for the user. The session token is removed from the system.
