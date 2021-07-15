@@ -23,7 +23,12 @@ const checkSession = async (req, res, next) => {
       {
         session_token,
       },
-      { user: 1, session_token_expiry: 1, session_last_used: 1 }
+      {
+        user: 1,
+        session_token_expiry: 1,
+        session_last_used: 1,
+        session_token: 1,
+      }
     );
 
     if (!session) {

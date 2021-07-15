@@ -109,9 +109,35 @@ const makeSession = async (req, res, next) => {
 
 const userInfo = async (req, res, next) => {
   try {
+    const userInfo = await User.findById(req.afuser._id, {
+      createdAt: 1,
+      uuid: 1,
+      _id: 0,
+    });
+
+    const sessions = await Session.find(
+      { user: req.afuser._id },
+      {
+        _id: 0,
+        session_token: 1,
+        session_token_expiry: 1,
+        session_last_used: 1,
+      }
+    );
+
+    const sessionsMarked = sessions.map((s) => {
+      const newSession = JSON.parse(JSON.stringify(s));
+      newSession.is_current = false;
+      if (req.afsession.session_token === s.session_token) {
+        newSession.is_current = true;
+      }
+      return newSession;
+    });
+
     return res.status(200).json({
       data: {
-        user: req.afuser.uuid,
+        user: userInfo,
+        sessions: sessionsMarked,
       },
     });
   } catch (e) {
