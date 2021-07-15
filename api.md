@@ -6,7 +6,7 @@ marked with a **[auth]** in the title.
 
 ## Authorization
 
-** Authorization header **
+**Authorization header**
 
 ```
 'x-af-auth':'7fa9e86c-4213-4643-9a6e-ad536f358ee6'
@@ -68,7 +68,7 @@ Creates a form based on the payload provided and returns its reference.
 - If `question_type` is one of `checkbox`, `radio` or `dropdown`, `question_options`
 is required.
 
-** Request body **
+**Request body**
 
 ```json
 {
@@ -133,7 +133,7 @@ particular form.
 Returns the list of forms the user has ownership to. If no `page` number is
 sent, the first page of results is returned. Results are **30** per page.
 
-** Query string **
+**Query string**
 
 ```
 page=1
@@ -148,7 +148,7 @@ Adds a response to a form mentioned by the `form_uuid`.
 that are referred in a form's question.
 - To get the ids mentioned above, make a call to the **/api/v1/form/:form_uri** endpoint.
 
-** Request payload **
+**Request payload**
 
 ```json
 {
@@ -178,7 +178,7 @@ Returns all responses for a form mentioned by the `form_uri`.
 If no `page` number is sent, the first page of results is returned. 
 Results are **30** per page.
 
-** Query string **
+**Query string**
 
 ```
 page=1
