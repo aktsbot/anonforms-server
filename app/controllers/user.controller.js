@@ -189,10 +189,21 @@ const clearSession = async (req, res, next) => {
   }
 };
 
+const deleteAccount = async (req, res, next) => {
+  try {
+    return res.status(200).json({
+      message: "Account deleted successfully",
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   authUser,
   makeSession,
   userInfo,
   deleteSession,
   clearSession,
+  deleteAccount,
 };

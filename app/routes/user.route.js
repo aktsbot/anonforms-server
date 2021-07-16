@@ -15,5 +15,6 @@ router.delete(
 );
 router.get("/", checkSession, userController.userInfo);
 router.post("/logout", checkSession, userController.clearSession);
+router.delete("/account", checkSession, userController.deleteAccount);
 
 module.exports = router;
