@@ -55,6 +55,11 @@ that are active for the user.
 The session token is a uuid that identifies a session for a user. This endpoint
 is used to remove a user selected session which is not the current user session.
 
+### DELETE /api/v1/user/account [auth]
+
+Will hard delete all forms, responses, sessions and finally the main user entry from
+the database.
+
 ### POST /api/v1/user/logout [auth]
 
 Clears the session for the user. The session token is removed from the system.
