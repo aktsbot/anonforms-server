@@ -1,5 +1,7 @@
 const User = require("../models/user.model");
 const Session = require("../models/session.model");
+const Form = require("../models/form.model");
+const Response = require("../models/response.model");
 
 const { sha256, sendEmail, randomCode } = require("../utils");
 
@@ -168,7 +170,7 @@ const deleteSession = async (req, res, next) => {
       });
     }
 
-    await session.remove();
+    await session.deleteOne();
 
     return res.status(200).json({
       message: "Session has been deleted",
@@ -180,7 +182,7 @@ const deleteSession = async (req, res, next) => {
 
 const clearSession = async (req, res, next) => {
   try {
-    await req.afsession.remove();
+    await req.afsession.deleteOne();
     return res.status(200).json({
       message: "Logout successful. Session has been cleared",
     });
@@ -191,6 +193,22 @@ const clearSession = async (req, res, next) => {
 
 const deleteAccount = async (req, res, next) => {
   try {
+    // find user forms
+    // remove responses
+    // remove forms
+    // remove sessions
+    // remove account
+
+    const forms = await Form.find({ user: req.afuser._id }, { _id: 1 });
+
+    if (forms.length) {
+      const formIds = forms.map((f) => f._id);
+      await Response.deleteMany({ form: { $in: formIds } });
+      await Form.deleteMany({ _id: { $in: formIds } });
+    }
+
+    await Session.deleteMany({ user: req.afuser._id });
+    await User.deleteOne({ _id: req.afuser._id });
     return res.status(200).json({
       message: "Account deleted successfully",
     });
