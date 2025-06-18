@@ -35,8 +35,15 @@ const randomCode = (length = 6) => {
   return Math.random().toString(36).substr(2, length);
 };
 
+const makeSlug = (str) => {
+  const id = randomCode(5).toLowerCase();
+  const urlName = str.replace(/\W+/g, " ").toLowerCase().replace(/ /g, "-");
+  return `${urlName}-${id}`;
+};
+
 module.exports = {
   sha256,
   sendEmail,
   randomCode,
+  makeSlug,
 };
