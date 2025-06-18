@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "anonforms",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
