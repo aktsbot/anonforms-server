@@ -2,6 +2,149 @@ const { Parser } = require("json2csv");
 const Response = require("../models/response.model");
 const Form = require("../models/form.model");
 
+const helpers = {
+  buildCSV: ({ form, responses }) => {
+    // TODO: generating a csv becomes time consuming if the forms are giant
+    // and have a large number of responses
+    const csvFileName = form.title.toLowerCase().replace(/ /g, "-") + ".csv";
+    const csvFieldNames = ["Response from"]; // will be question titles, like what is your name?
+    const csvFields = ["response_from"]; // will be _ids of answers
+    const csvData = [];
+
+    for (const question of form.questions) {
+      csvFieldNames.push(question.title);
+      csvFields.push(question._id.toString());
+    }
+
+    for (const response of responses) {
+      const __csvData = {
+        response_from: response.response_from,
+      };
+      for (const csvField of csvFields) {
+        if (csvField !== "response_from") {
+          // all others are question ids
+          __csvData[csvField] = "";
+        }
+      }
+
+      for (const ans of response.answers) {
+        // simple_text and large_text require only getting value in answer_text
+        const fq = form.questions.find((q) => q._id.equals(ans.question));
+        if (
+          fq.question_type === "simple_text" ||
+          fq.question_type === "large_text"
+        ) {
+          __csvData[ans.question] = ans.answer_text;
+        } else if (
+          fq.question_type === "radio" ||
+          fq.question_type === "dropdown"
+        ) {
+          // get text from _ids
+          const options = fq.question_options;
+          const selectedOption = options.find((o) =>
+            o._id.equals(ans.answer_single_option)
+          );
+          __csvData[ans.question] = selectedOption.title;
+        } else if (fq.question_type === "checkbox") {
+          // will have multiple values
+          const options = fq.question_options;
+          const selectedOptions = [];
+          for (const amo of ans.answer_multiple_option) {
+            const selectedOption = options.find((o) => o._id.equals(amo));
+            selectedOptions.push(selectedOption.title);
+          }
+          // XXX using a comma as a delimiter in a csv file?
+          __csvData[ans.question] = selectedOptions.join(",");
+        }
+      }
+      csvData.push(__csvData);
+    }
+
+    // TODO: this could be made better
+    // [{label: 'Foo Name', value: 'name' }]
+    const parserFields = [];
+    for (let i = 0; i < csvFields.length; i++) {
+      const field = {
+        label: csvFieldNames[i],
+        value: csvFields[i],
+      };
+      parserFields.push(field);
+    }
+
+    return {
+      parserFields,
+      csvData,
+      csvFileName,
+    };
+  },
+  buildJSON: ({ form, responses }) => {
+    const cols = [
+      {
+        rowField: "response_from",
+        text: "Response from",
+      },
+    ];
+    const rows = [];
+
+    // temp space for holding question ids
+    const rowFields = [];
+    for (const question of form.questions) {
+      cols.push({
+        rowField: question._id.toString(),
+        text: question.title,
+      });
+      rowFields.push(question._id.toString());
+    }
+
+    for (const response of responses) {
+      const row = {
+        id: response._id.toString(),
+        response_from: response.response_from,
+      };
+      // we set every question answer to '' first
+      for (const field of rowFields) {
+        row[field] = "";
+      }
+
+      for (const ans of response.answers) {
+        // simple_text and large_text require only getting value in answer_text
+        const fq = form.questions.find((q) => q._id.equals(ans.question));
+        if (
+          fq.question_type === "simple_text" ||
+          fq.question_type === "large_text"
+        ) {
+          row[ans.question] = ans.answer_text;
+        } else if (
+          fq.question_type === "radio" ||
+          fq.question_type === "dropdown"
+        ) {
+          // get text from _ids
+          const options = fq.question_options;
+          const selectedOption = options.find((o) =>
+            o._id.equals(ans.answer_single_option)
+          );
+          row[ans.question] = selectedOption.title;
+        } else if (fq.question_type === "checkbox") {
+          // will have multiple values
+          const options = fq.question_options;
+          const selectedOptions = [];
+          for (const amo of ans.answer_multiple_option) {
+            const selectedOption = options.find((o) => o._id.equals(amo));
+            selectedOptions.push(selectedOption.title);
+          }
+          row[ans.question] = selectedOptions.join(",");
+        }
+      }
+      rows.push(row);
+    }
+
+    return {
+      cols,
+      rows,
+    };
+  },
+};
+
 const createResponse = async (req, res, next) => {
   try {
     const form = await Form.findOne(
@@ -178,80 +321,32 @@ const generateResponseCSV = async (req, res, next) => {
       }
     );
 
-    // TODO: generating a csv becomes time consuming if the forms are giant
-    // and have a large number of responses
-    const csvFileName = form.title.toLowerCase().replace(/ /g, "-") + ".csv";
-    const csvFieldNames = ["Response from"]; // will be question titles, like what is your name?
-    const csvFields = ["response_from"]; // will be _ids of answers
-    const csvData = [];
+    if (req.params.res_type === "csv") {
+      const { parserFields, csvData, csvFileName } = helpers.buildCSV({
+        form,
+        responses,
+      });
 
-    for (const question of form.questions) {
-      csvFieldNames.push(question.title);
-      csvFields.push(question._id.toString());
+      // https://www.npmjs.com/package/json2csv#user-content-example-3
+      const json2csvParser = new Parser({
+        fields: parserFields,
+      });
+      const csv = json2csvParser.parse(csvData);
+      res.attachment(csvFileName);
+      return res.status(200).send(csv);
+    } else {
+      // we send json
+      const json = helpers.buildJSON({ form, responses });
+      return res.status(200).send({
+        data: {
+          form: {
+            uuid: form.uuid,
+            title: form.title,
+          },
+          responses: json,
+        },
+      });
     }
-
-    for (const response of responses) {
-      const __csvData = {
-        response_from: response.response_from,
-      };
-      for (const csvField of csvFields) {
-        if (csvField !== "response_from") {
-          // all others are question ids
-          __csvData[csvField] = "";
-        }
-      }
-
-      for (const ans of response.answers) {
-        // simple_text and large_text require only getting value in answer_text
-        const fq = form.questions.find((q) => q._id.equals(ans.question));
-        if (
-          fq.question_type === "simple_text" ||
-          fq.question_type === "large_text"
-        ) {
-          __csvData[ans.question] = ans.answer_text;
-        } else if (
-          fq.question_type === "radio" ||
-          fq.question_type === "dropdown"
-        ) {
-          // get text from _ids
-          const options = fq.question_options;
-          const selectedOption = options.find((o) =>
-            o._id.equals(ans.answer_single_option)
-          );
-          __csvData[ans.question] = selectedOption.title;
-        } else if (fq.question_type === "checkbox") {
-          // will have multiple values
-          const options = fq.question_options;
-          const selectedOptions = [];
-          for (const amo of ans.answer_multiple_option) {
-            const selectedOption = options.find((o) => o._id.equals(amo));
-            selectedOptions.push(selectedOption.title);
-          }
-          // XXX using a comma as a delimiter in a csv file?
-          __csvData[ans.question] = selectedOptions.join(",");
-        }
-      }
-      csvData.push(__csvData);
-    }
-
-    // TODO: this could be made better
-    // [{label: 'Foo Name', value: 'name' }]
-    const parserFields = [];
-    for (let i = 0; i < csvFields.length; i++) {
-      const field = {
-        label: csvFieldNames[i],
-        value: csvFields[i],
-      };
-      parserFields.push(field);
-    }
-
-    // https://www.npmjs.com/package/json2csv#user-content-example-3
-    const json2csvParser = new Parser({
-      fields: parserFields,
-    });
-    const csv = json2csvParser.parse(csvData);
-    res.attachment(csvFileName);
-    return res.status(200).send(csv);
   } catch (e) {
     next(e);
   }

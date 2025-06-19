@@ -1,3 +1,5 @@
+const { makeSlug } = require("../utils");
+
 const Form = require("../models/form.model");
 const Response = require("../models/response.model");
 
@@ -16,6 +18,9 @@ const createForm = async (req, res, next) => {
     }
 
     const formPayload = { ...req.xop, user: req.afuser._id };
+    // fix slugs having weird extra characters
+    formPayload.uri = makeSlug(formPayload.uri);
+
     const newForm = Form(formPayload);
     const newFormSave = await newForm.save();
 

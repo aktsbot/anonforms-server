@@ -13,7 +13,7 @@ router.post(
 );
 router.get("/:form_uri", checkSession, responseController.getResponses);
 router.get(
-  "/:form_uri/csv",
+  "/:form_uri/:res_type",
   checkSession,
   responseController.generateResponseCSV
 );
