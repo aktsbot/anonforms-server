@@ -337,7 +337,15 @@ const generateResponseCSV = async (req, res, next) => {
     } else {
       // we send json
       const json = helpers.buildJSON({ form, responses });
-      return res.status(200).send(json);
+      return res.status(200).send({
+        data: {
+          form: {
+            uuid: form.uuid,
+            title: form.title,
+          },
+          responses: json,
+        },
+      });
     }
   } catch (e) {
     next(e);
